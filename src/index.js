@@ -1,36 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
-import ApolloClient from 'apollo-boost';
-import { gql } from "apollo-boost";
+import * as serviceWorker from './serviceWorker';
 
+import { ApolloProvider } from 'react-apollo'           // 수정
+import { ApolloClient } from 'apollo-client'            // 수정
+import { createHttpLink } from 'apollo-link-http'
+import { InMemoryCache } from 'apollo-cache-inmemory'
+
+const httpLink = createHttpLink({                       // 수정
+  uri: 'http://fororder.local/graphql'                          // 수정
+})                                                      // 수정
 const client = new ApolloClient({
-  uri: 'http://fororder.local/graphql',
-});
-
-client
-.query({
-  query: gql`
-    {
-      menuItems(where: {location: PRIMARY}) {
-        nodes {
-        menuItemId
-        url
-        cssClasses
-        label
-        target
-        }
-      }
-    }
-  `
+  link: httpLink,                                       // 수정
+  cache: new InMemoryCache()                            // 수정
 })
-.then(result => console.log('result = '+result));
 
 ReactDOM.render(
-  <React.StrictMode>
+  <ApolloProvider client={client}>
     <App />
-  </React.StrictMode>,
+  </ApolloProvider>,
   document.getElementById('root')
 );
 
+serviceWorker.unregister();
