@@ -1,16 +1,18 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { gql } from 'apollo-boost';
-import { Query } from 'react-apollo'
+import { Query } from 'react-apollo';
+import { Link } from 'react-router-dom';
 
 function GetMenus(props) {
   let listId = 'menuitem'+props.Id;
-  let Classes = 'menuitem '+props.ClassName;
+  let Classes = 'menuitem '+props.ClassName+' menu_'+props.Slug;
 
   return (
     <li key={props.Id} id={listId} className={Classes}>
-      <a href={props.Link} target={props.Target}>
-        <span>{props.Label}</span>
-      </a>
+      <Link target={props.Target} to={{
+        pathname: `/pages/${props.Slug}`
+      }}><span>{props.Label}</span></Link>
     </li>
   )
 }
@@ -25,6 +27,7 @@ function MenuList() {
           cssClasses
           label
           target
+          title
         }
       }
     }
@@ -39,12 +42,9 @@ function MenuList() {
           const menuRender = data.menuItems.nodes
     
           return (
-            <nav>
               <ul>
-                {menuRender.map(link => <GetMenus key={link.menuItemId} Id={link.menuItemId} Link={link.url} ClassName={link.cssClasses} Label={link.label} Target={link.target} />)}
+                {menuRender.map(link => <GetMenus key={link.menuItemId} Id={link.menuItemId} Link={link.url} ClassName={link.cssClasses} Label={link.label} Target={link.target} Slug={link.title}/>)}
               </ul>
-            </nav>
-           
           )
         }}
       </Query>
@@ -52,7 +52,18 @@ function MenuList() {
 }
 
 function Navigation() {
-  return <MenuList />
+  return (
+    <nav>
+      <MenuList />
+    </nav>
+  )
+}
+
+GetMenus.propTypes = {
+  Id: PropTypes.number.isRequired,
+  Link: PropTypes.string.isRequired,
+  Label: PropTypes.string.isRequired,
+  Slug: PropTypes.string.isRequired
 }
 
 export default Navigation;
